@@ -87,3 +87,21 @@ func (lb *LB) proxy(req IncomingReq) {
 
     <-done
 }
+
+func (lb *LB) Serve(ln net.Listener) error {
+	defer ln.Close()
+
+	log.Printf("[lb] serving on %s", ln.Addr().String())
+
+	for {
+		conn, err := ln.Accept()
+		if err != nil {
+			return fmt.Errorf("accept error: %w", err)
+		}
+
+		go lb.proxy(IncomingReq{
+			srcConn: conn,
+			reqId:   newReqID(),
+		})
+	}
+}
