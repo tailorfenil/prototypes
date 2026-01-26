@@ -1,0 +1,1 @@
+flash-sale admission control system with NGINX, Redis, and Python that enforces both global throughput and bounded lag. The system uses layered rate limiting, atomic Redis transactions, and explicit execution capacity to prevent overload while maintaining predictable latency under extreme traffic spikes.
