@@ -100,6 +100,7 @@ From the project root:
 
 ```bash
 docker compose up --build
+```
 
 You should see:
 Uvicorn running on http://0.0.0.0:8000
@@ -107,16 +108,20 @@ Uvicorn running on http://0.0.0.0:8000
 
 ### 2️⃣ Request a magic link
 
+```bash
 curl -X POST http://localhost:8000/auth/magic/request \
   -H "Content-Type: application/json" \
   -d '{"email":"test@example.com"}'
+```
 
 You’ll see a printed magic link:
 Magic link → http://localhost:8000/auth/magic/consume?token=...
 
 ### 3️⃣ Consume the magic link
 
+```bash
 curl -i "http://localhost:8000/auth/magic/consume?token=PASTE_TOKEN"
+```
 
 This sets an authentication cookie (sid).
 
