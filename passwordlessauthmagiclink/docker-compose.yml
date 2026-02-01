@@ -1,0 +1,36 @@
+version: "3.9"
+
+services:
+  app:
+    build: ./app
+    container_name: magic-auth-app
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql://auth:auth@postgres:5432/auth
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+    depends_on:
+      - postgres
+      - redis
+
+  postgres:
+    image: postgres:16
+    container_name: magic-auth-postgres
+    environment:
+      POSTGRES_USER: auth
+      POSTGRES_PASSWORD: auth
+      POSTGRES_DB: auth
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:7
+    container_name: magic-auth-redis
+    ports:
+      - "6379:6379"
+
+volumes:
+  pgdata:
