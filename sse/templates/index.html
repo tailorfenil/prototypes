@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>SSE Demo</title>
+</head>
+<body>
+    <h2>Server-Sent Events Demo</h2>
+    <div id="status">Connecting...</div>
+    <pre id="output"></pre>
+
+    <script>
+        const output = document.getElementById("output");
+        const statusDiv = document.getElementById("status");
+
+        const source = new EventSource("/stream");
+
+        source.onopen = function () {
+            statusDiv.textContent = "Connected";
+        };
+
+        source.onmessage = function (event) {
+            output.textContent += event.data + "\n";
+        };
+
+        source.onerror = function () {
+            console.log("Connection lost... retrying");
+            statusDiv.textContent = "Connection issue";
+        };
+    </script>
+</body>
+</html>
