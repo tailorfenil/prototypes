@@ -1,0 +1,24 @@
+Kafka
+
+-- create topic
+
+kafka-topics \
+  --create \
+  --topic events \
+  --bootstrap-server localhost:9092 \
+  --partitions 3 \
+  --replication-factor 1
+
+--- describe topic
+
+kafka-topics \
+  --describe \
+  --topic events \
+  --bootstrap-server localhost:9092
+
+--- check consumer group partitions distributions
+
+kafka-consumer-groups \
+  --bootstrap-server localhost:9092 \
+  --describe \
+  --group flink-group
