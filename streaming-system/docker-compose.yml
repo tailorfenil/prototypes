@@ -31,8 +31,16 @@ services:
     volumes:
       - ./flink-jobs:/opt/flink/jobs
     command: jobmanager
+    container_name: jobmanager
+    hostname: jobmanager
     ports:
       - "8081:8081"
+    environment:
+      FLINK_PROPERTIES: |
+        jobmanager.rpc.address: jobmanager
+        rest.address: jobmanager
+        rest.bind-address: 0.0.0.0
+        jobmanager.bind-host: 0.0.0.0
 
 
   taskmanager:
@@ -40,5 +48,12 @@ services:
     depends_on:
       - jobmanager
     command: taskmanager
+    container_name: taskmanager
+    hostname: taskmanager
+    volumes:
+      - ./flink-jobs:/opt/flink/jobs
     environment:
-      - JOB_MANAGER_RPC_ADDRESS=jobmanager
+      FLINK_PROPERTIES: |
+        jobmanager.rpc.address: jobmanager
+        taskmanager.bind-host: 0.0.0.0
+        taskmanager.numerOfTaskSlots: 2
