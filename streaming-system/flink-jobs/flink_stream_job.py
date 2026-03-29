@@ -5,6 +5,13 @@ from pyflink.common.serialization import SimpleStringSchema
 from pyflink.datastream.connectors.kafka import KafkaSource
 from pyflink.common.watermark_strategy import WatermarkStrategy
 
+from pyflink.datastream import StreamExecutionEnvironment
+from pyflink.datastream import CheckpointingMode
+
+from pyflink.datastream.connectors.kafka import KafkaSink, KafkaRecordSerializationSchema
+
+from pyflink.common.typeinfo import Types
+
 
 # ---------- Helper ----------
 def parse_event(raw_str):
@@ -18,7 +25,15 @@ def parse_event(raw_str):
 env = StreamExecutionEnvironment.get_execution_environment()
 env.set_parallelism(1)
 
-# (we'll add checkpoints later)
+# enable checkpointing
+env.enable_checkpointing(10000)
+
+checkpoint_config = env.get_checkpoint_config()
+checkpoint_config.set_checkpointing_mode(CheckpointingMode.EXACTLY_ONCE)
+checkpoint_config.set_min_pause_between_checkpoints(5000)
+checkpoint_config.set_checkpoint_timeout(60000)
+checkpoint_config.set_max_concurrent_checkpoints(1)
+
 
 # Kafka Source
 source = (
@@ -40,8 +55,29 @@ stream = env.from_source(
 # Parse JSON
 parsed = stream.map(parse_event)
 
-# Print output
-parsed.print()
+
+# Convert to JSON string with explicit type
+to_json = parsed.map(
+    lambda x: json.dumps(x),
+    output_type=Types.STRING()
+)
+
+
+# Kafka Sink
+sink = (
+    KafkaSink.builder()
+    .set_bootstrap_servers("kafka:9093")
+    .set_record_serializer(
+        KafkaRecordSerializationSchema.builder()
+        .set_topic("events_parsed")
+        .set_value_serialization_schema(SimpleStringSchema())
+        .build()
+    )
+    .build()
+)
+
+# Write to Kafka
+to_json.sink_to(sink)
 
 # Execute
 env.execute("Kafka → Flink DataStream Job")
