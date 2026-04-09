@@ -10,6 +10,9 @@ from pyflink.datastream import CheckpointingMode
 
 from pyflink.datastream.connectors.kafka import KafkaSink, KafkaRecordSerializationSchema
 
+from pyflink.datastream.checkpoint_storage import FileSystemCheckpointStorage
+
+
 from pyflink.common.typeinfo import Types
 
 
@@ -27,6 +30,9 @@ env.set_parallelism(1)
 
 # enable checkpointing
 env.enable_checkpointing(10000)
+env.get_checkpoint_config().set_checkpoint_storage(
+    FileSystemCheckpointStorage("file:///tmp/flink-checkpoints")
+)
 
 checkpoint_config = env.get_checkpoint_config()
 checkpoint_config.set_checkpointing_mode(CheckpointingMode.EXACTLY_ONCE)
